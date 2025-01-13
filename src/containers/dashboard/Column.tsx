@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 
 import Card from './Card';
@@ -38,27 +38,7 @@ function Column({ column, columns, isMember }: ColumnProps) {
     }
   }, [initialData]);
 
-  const fetchCards = useCallback(
-    async (size: number, cursorId?: number | null) => {
-      setIsFetching(true);
-      try {
-        const response = await getCardsList(column.id, size, cursorId !== null ? cursorId : undefined);
-        if (response.data.cards.length > 0) {
-          setCards((prevCards) => [...prevCards, ...response.data.cards]);
-          setCursorId(response.data.cursorId || null);
-        } else {
-          setCursorId(null);
-        }
-      } catch (error) {
-        console.error('Error fetching cards:', error);
-      } finally {
-        setIsFetching(false);
-      }
-    },
-    [column.id],
-  );
-
-  const { observerRef } = useInfiniteScroll(fetchCards, cursorId, isFetching);
+  const { observerRef } = useInfiniteScroll(cards, cursorId, isFetching);
 
   if (isLoading) {
     return <ColumnSkeleton />;
