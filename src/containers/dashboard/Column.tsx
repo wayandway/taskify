@@ -8,7 +8,7 @@ import ColumnSkeleton from './ColumnSkeleton';
 import useFetchData from '@/hooks/useFetchData';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import useModal from '@/hooks/useModal';
-import { getCardsList } from '@/services/getService';
+import { getCardsList, getComments } from '@/services/getService';
 import { Card as CardType, CardsListResponse } from '@/types/Card.interface';
 import { Column as ColumnType } from '@/types/Column.interface';
 
@@ -22,6 +22,7 @@ interface ColumnProps {
 function Column({ column, columns, isMember }: ColumnProps) {
   const { openModifyColumnModal, openEditCardModal, openTodoCardModal } = useModal();
   const [cards, setCards] = useState<CardType[]>([]);
+  const [cardsWithComments, setCardsWithComments] = useState<CardType[]>([]);
   const [cursorId, setCursorId] = useState<number | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
@@ -36,6 +37,17 @@ function Column({ column, columns, isMember }: ColumnProps) {
       setCards(initialData.cards);
       setCursorId(initialData.cursorId || null);
     }
+
+    const fetchCommentsForCards = async () => {
+      const cardsWithComments = await Promise.all(
+        initialData?.cards?.map(async (card) => {
+          const commentsData = await getComments(card.id);
+          return { ...card, comments: commentsData.comments };
+        }) ?? [],
+      );
+    };
+
+    fetchCommentsForCards();
   }, [initialData]);
 
   const { observerRef } = useInfiniteScroll(cards, cursorId, isFetching);
@@ -111,7 +123,7 @@ function Column({ column, columns, isMember }: ColumnProps) {
                         {...provided.dragHandleProps}
                         onClick={() => openTodoCardModal({ card, column, isMember })}
                       >
-                        <Card key={`card-${card.id}`} card={card} />
+                        <Card key={`card-${card.id}`} card={card} comments={card.comments} />
                       </div>
                     )}
                   </Draggable>
