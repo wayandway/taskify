@@ -22,7 +22,6 @@ interface ColumnProps {
 function Column({ column, columns, isMember }: ColumnProps) {
   const { openModifyColumnModal, openEditCardModal, openTodoCardModal } = useModal();
   const [cards, setCards] = useState<CardType[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
   const [cursorId, setCursorId] = useState<number | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
@@ -35,7 +34,6 @@ function Column({ column, columns, isMember }: ColumnProps) {
   useEffect(() => {
     if (initialData) {
       setCards(initialData.cards);
-      setTotalCount(initialData.totalCount);
       setCursorId(initialData.cursorId || null);
     }
   }, [initialData]);
@@ -79,7 +77,7 @@ function Column({ column, columns, isMember }: ColumnProps) {
             <span className='mr-[8px] text-xs text-violet'>𒊹</span>
             <h2 className='mr-[12px] text-lg font-bold text-black-33 dark:text-dark-10'>{column.title}</h2>
             <span className='flex size-[20px] items-center justify-center rounded-[6px] bg-gray-ee text-xs text-gray-78 dark:bg-dark-200 dark:text-dark-10'>
-              {totalCount}
+              {cards.length}
             </span>
           </div>
 
