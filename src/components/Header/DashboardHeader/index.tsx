@@ -18,18 +18,17 @@ export default function DashboardHeader() {
   const router = useRouter();
   const { id } = router.query;
 
-  const {
-    data: dashboard,
-    isLoading,
-    error,
-  } = useFetchData<Dashboard>(['dashboard', id], () => getDashboard(id as string), !!id);
+  const { data: dashboard, isLoading } = useFetchData<Dashboard>(
+    ['dashboard', id],
+    () => getDashboard(id as string),
+    !!id,
+  );
 
   if (isLoading || !id) {
     return <DefaultHeader title='로딩중...' />;
   }
 
   if (!dashboard) {
-    console.log(error);
     return <DefaultHeader title='대시보드 정보를 불러오지 못했습니다.' />;
   }
 

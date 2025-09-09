@@ -68,7 +68,7 @@ export default function SignUpForm() {
         }
       } else {
         openNotificationModal({ text: '회원가입을 실패하였습니다.' });
-        console.log(error);
+        // console.log(error);
       }
     }
   };

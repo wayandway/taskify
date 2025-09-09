@@ -1,3 +1,4 @@
+import { Comment } from './post/CommentForm.interface';
 import { User } from './User.interface';
 
 export interface Card {
@@ -12,6 +13,7 @@ export interface Card {
   columnId: number;
   createdAt: string;
   updatedAt: string;
+  comments?: Comment[];
 }
 
 export interface CardsListResponse {

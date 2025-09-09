@@ -30,7 +30,7 @@ const useDeleteData = <T>({ mutationFn, handleSuccess, handleError }: UseDeleteP
           openNotificationModal({ text: error.response?.data.message });
         } else {
           openNotificationModal({ text: '실패했습니다.' });
-          console.log(error);
+          // console.log(error);
         }
       }
     },

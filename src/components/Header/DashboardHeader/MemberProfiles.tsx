@@ -81,7 +81,9 @@ function MoreIcon(more: number, offset: number) {
   return (
     <div
       style={{ left: offset }}
-      className='align-center font-montserrat absolute size-[34px] rounded-full border-2 border-solid border-white bg-gray-9f font-semibold text-white md:size-[38px]'
+      // className='align-center font-montserrat absolute size-[34px] rounded-full border-2 border-solid border-white bg-gray-9f font-semibold text-white md:size-[38px]'
+      className='align-center absolute size-[34px] rounded-full border-2 border-solid border-white bg-gray-9f font-semibold text-white md:size-[38px]'
+      // font-montserrat은 tailwind에 없는 커스텀 클래스이므로 필요시 글로벌 CSS에 정의하거나 제거
     >
       <p>{`+${more}`}</p>
     </div>

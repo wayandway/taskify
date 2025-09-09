@@ -24,11 +24,9 @@ export default function ColumnsSection({ dashboardId }: ColumnsSectionProps) {
   const { user } = useSelector((state: RootState) => state.user);
   const [isMember, setIsMember] = useState(true);
 
-  const {
-    data: columns,
-    isLoading,
-    error,
-  } = useFetchData<ColumnsResponse>(['columns', dashboardId], () => getColumnsList(Number(dashboardId)));
+  const { data: columns, isLoading } = useFetchData<ColumnsResponse>(['columns', dashboardId], () =>
+    getColumnsList(Number(dashboardId)),
+  );
 
   const columnList = columns?.data || [];
 
@@ -70,14 +68,10 @@ export default function ColumnsSection({ dashboardId }: ColumnsSectionProps) {
       queryClient.invalidateQueries({ queryKey: ['columns', dashboardId] });
       queryClient.invalidateQueries({ queryKey: ['cards', sourceColumnId] });
       queryClient.invalidateQueries({ queryKey: ['cards', destinationColumnId] });
-    } catch (error) {
-      console.error(error);
+    } catch (e) {
+      // console.error(e);
     }
   };
-
-  if (error) {
-    return <>{error.message}</>;
-  }
 
   return isLoading ? (
     <div className='flex h-screen items-center justify-center'>

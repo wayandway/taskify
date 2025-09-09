@@ -42,7 +42,7 @@ export default function NewColumnModal({ columns }: NewColumnModalProps) {
         setErrorMessage(error.response?.data.message || '컬럼 생성을 실패하였습니다.');
       } else {
         setErrorMessage('컬럼 생성을 실패하였습니다.');
-        console.log(error);
+        // console.log(error);
       }
     }
   };

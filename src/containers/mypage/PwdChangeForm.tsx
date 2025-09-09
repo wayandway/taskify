@@ -91,7 +91,7 @@ export default function PwdChangeForm() {
           openNotificationModal({ text: error.response?.data.message || message });
         } else {
           openNotificationModal({ text: message });
-          console.log(error);
+          // console.log(error);
         }
       }
     };

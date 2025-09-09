@@ -225,9 +225,9 @@ export default function EditCardModal({ column, isEdit = false, card }: EditCard
 
       const filteredFormValues: Partial<PostCardData> = {
         ...formValuesToSend,
-        assigneeUserId: formValuesToSend.assigneeUserId || (isEdit ? null : undefined),
-        imageUrl: formValuesToSend.imageUrl !== '' ? formValuesToSend.imageUrl : isEdit ? null : undefined,
-        dueDate: formValuesToSend.dueDate !== '' ? formValuesToSend.dueDate : isEdit ? null : undefined,
+        assigneeUserId: formValuesToSend.assigneeUserId || (isEdit ? null : null),
+        imageUrl: formValuesToSend.imageUrl !== '' ? formValuesToSend.imageUrl : isEdit ? null : null,
+        dueDate: formValuesToSend.dueDate !== '' ? formValuesToSend.dueDate : isEdit ? null : null,
       };
 
       let responseCard;
@@ -251,7 +251,7 @@ export default function EditCardModal({ column, isEdit = false, card }: EditCard
         queryClient.invalidateQueries({ queryKey: ['cards', formValues.columnId] });
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      // console.error('Error submitting form:', error);
     } finally {
       setLoading(false);
     }

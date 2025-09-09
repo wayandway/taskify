@@ -41,7 +41,7 @@ export default function TodoCardModal({ card, column, onClick }: TodoCardModalPr
   const fetchComments = async (size: number, cursor?: number | null) => {
     setIsFetching(true);
     try {
-      const response = await getComments(card.id, size, cursor || undefined);
+      const response = await getComments(card.id, size, cursor === null ? undefined : cursor);
       const newComments = response.data.comments;
       setComments((prevComments) => [...prevComments, ...newComments]);
       if (newComments.length < size) {
@@ -50,7 +50,7 @@ export default function TodoCardModal({ card, column, onClick }: TodoCardModalPr
         setCursorId(newComments[newComments.length - 1].id); // 다음 커서 ID 업데이트
       }
     } catch (error) {
-      console.error('Error fetching comments:', error);
+      // console.error('Error fetching comments:', error);
     } finally {
       setIsFetching(false);
     }
@@ -85,7 +85,7 @@ export default function TodoCardModal({ card, column, onClick }: TodoCardModalPr
       queryClient.invalidateQueries({ queryKey: ['comments', card.id] });
       setNewComment('');
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   };
 
@@ -142,14 +142,6 @@ export default function TodoCardModal({ card, column, onClick }: TodoCardModalPr
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder='댓글을 입력하세요.'
                 />
-
-                <button
-                  className='btn-violet-light dark:btn-white absolute right-1 h-[28px] w-[60px] rounded-[4px] text-[12px] text-violet md:h-[32px] md:w-[78px] lg:w-[84px] dark:rounded-[4px]'
-                  type='submit'
-                  disabled={newComment === ''}
-                >
-                  입력
-                </button>
               </div>
             </form>
 

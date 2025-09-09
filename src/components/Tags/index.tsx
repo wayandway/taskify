@@ -63,7 +63,7 @@ export default function Tags({ tags, customClass, onClick }: TagsProps) {
           key={tag.id}
           className={`align-center relative h-[24px] flex-row rounded-[4px] px-[6px] pb-[2px] pt-[4px] text-[12px] ${onClick ? 'duration-200 hover:cursor-pointer hover:opacity-40' : ''}`}
           style={{ backgroundColor: tag.color.background, color: tag.color.text }}
-          onClick={onClick ? () => onClick(tag.name) : undefined}
+          onClick={typeof onClick === 'function' ? () => onClick(tag.name) : undefined}
         >
           {tag.name}
         </span>

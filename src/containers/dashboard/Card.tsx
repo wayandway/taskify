@@ -2,14 +2,11 @@ import Image from 'next/image';
 
 import ProfileIcon from '@/components/ProfileIcon';
 import Tags from '@/components/Tags';
-import useFetchData from '@/hooks/useFetchData';
-import { getComments } from '@/services/getService';
-import { Card as TCard } from '@/types/Card.interface';
-import { CommentsResponse } from '@/types/post/CommentForm.interface';
+import type { Card as CardType } from '@/types/Card.interface';
 import formatDate from '@/utils/formatDate';
 
 interface CardProps {
-  card: TCard;
+  card: CardType;
   comments: { id: number; content: string }[];
 }
 

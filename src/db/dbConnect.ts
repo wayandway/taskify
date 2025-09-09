@@ -1,8 +1,4 @@
 import mongoose from 'mongoose';
-declare global {
-  // eslint-disable-next-line no-var, no-shadow, @typescript-eslint/no-explicit-any
-  var mongoose: any; // This must be a `var` and not a `let / const`
-}
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
@@ -10,13 +6,26 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+// global 타입에 mongooseCache 속성 추가
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseCache:
+    | {
+        conn: typeof mongoose | null;
+        promise: Promise<typeof mongoose> | null;
+      }
+    | undefined;
 }
 
-async function dbConnect() {
+let cached = global.mongooseCache;
+if (!cached) {
+  cached = global.mongooseCache = { conn: null, promise: null };
+}
+
+async function dbConnect(): Promise<typeof mongoose> {
+  if (!cached) {
+    cached = global.mongooseCache = { conn: null, promise: null };
+  }
   if (cached.conn) {
     return cached.conn;
   }
@@ -24,9 +33,7 @@ async function dbConnect() {
     const opts = {
       bufferCommands: false,
     };
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose.connect(MONGODB_URI, opts);
   }
   try {
     cached.conn = await cached.promise;
@@ -34,8 +41,7 @@ async function dbConnect() {
     cached.promise = null;
     throw e;
   }
-
-  return cached.conn;
+  return cached.conn!;
 }
 
 export default dbConnect;

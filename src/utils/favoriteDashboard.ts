@@ -7,7 +7,7 @@ export const checkFavorite = (favorites: FavoriteDashboard[], favoriteId: number
   try {
     return favorites.some((favorite: { id: number }) => favorite.id === favoriteId);
   } catch (error) {
-    console.error('Failed to check favorite:', error);
+    // console.error('Failed to check favorite:', error);
     return false;
   }
 };
@@ -31,7 +31,7 @@ export const limitCheckFavorite = (favorites: FavoriteDashboard[]) => {
 
     return favorites.length >= 3;
   } catch (error) {
-    console.error('Failed to check favorite limit:', error);
+    // console.error('Failed to check favorite limit:', error);
     return false;
   }
 };

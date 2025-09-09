@@ -42,7 +42,7 @@ export default function ModifyColumnModal({ columnId, columnTitle = '', columns 
         setErrorMessage(error.response?.data.message || '컬럼 변경을 실패하였습니다.');
       } else {
         setErrorMessage('컬럼 변경을 실패하였습니다.');
-        console.log(error);
+        // console.log(error);
       }
     }
   };
@@ -57,7 +57,7 @@ export default function ModifyColumnModal({ columnId, columnTitle = '', columns 
         setErrorMessage(error.response?.data.message || '컬럼이 삭제에 실패했습니다.');
       } else {
         setErrorMessage('컬럼이 삭제에 실패했습니다.');
-        console.log(error);
+        // console.log(error);
       }
     }
   };

@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       initialDashboard = dashboardResponse.data;
       initialInvitedDashboard = invitationsResponse.data;
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      // console.error('Failed to fetch data:', error);
     }
   }
 

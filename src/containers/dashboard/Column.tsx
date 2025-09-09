@@ -8,7 +8,7 @@ import ColumnSkeleton from './ColumnSkeleton';
 import useFetchData from '@/hooks/useFetchData';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import useModal from '@/hooks/useModal';
-import { getCardsList, getComments } from '@/services/getService';
+import { getCardsList } from '@/services/getService';
 import { Card as CardType, CardsListResponse } from '@/types/Card.interface';
 import { Column as ColumnType } from '@/types/Column.interface';
 
@@ -22,7 +22,7 @@ interface ColumnProps {
 function Column({ column, columns, isMember }: ColumnProps) {
   const { openModifyColumnModal, openEditCardModal, openTodoCardModal } = useModal();
   const [cards, setCards] = useState<CardType[]>([]);
-  const [cardsWithComments, setCardsWithComments] = useState<CardType[]>([]);
+  // const [cardsWithComments, setCardsWithComments] = useState<CardType[]>([]); // 미사용 변수 제거
   const [cursorId, setCursorId] = useState<number | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
@@ -38,19 +38,22 @@ function Column({ column, columns, isMember }: ColumnProps) {
       setCursorId(initialData.cursorId || null);
     }
 
-    const fetchCommentsForCards = async () => {
-      const cardsWithComments = await Promise.all(
-        initialData?.cards?.map(async (card) => {
-          const commentsData = await getComments(card.id);
-          return { ...card, comments: commentsData.comments };
-        }) ?? [],
-      );
-    };
-
-    fetchCommentsForCards();
+    // 미사용 함수 및 변수 제거
   }, [initialData]);
+  // 카드 추가 로딩 함수
+  const fetchMoreCards = async (size: number, nextCursorId?: number | null) => {
+    setIsFetching(true);
+    try {
+      const res = await getCardsList(column.id, size, typeof nextCursorId === 'number' ? nextCursorId : undefined);
+      const newCards = res.data.cards || [];
+      setCards((prev) => [...prev, ...newCards]);
+      setCursorId(res.data.cursorId || null);
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
-  const { observerRef } = useInfiniteScroll(cards, cursorId, isFetching);
+  const { observerRef } = useInfiniteScroll(fetchMoreCards, cursorId, isFetching);
 
   if (isLoading) {
     return <ColumnSkeleton />;
@@ -113,17 +116,17 @@ function Column({ column, columns, isMember }: ColumnProps) {
                     index={index}
                     isDragDisabled={!isMember}
                   >
-                    {(provided) => (
+                    {(dragProvided) => (
                       <div
                         ref={(cardRef) => {
-                          provided.innerRef(cardRef);
+                          dragProvided.innerRef(cardRef);
                           if (index === cards.length - 1) observerRef.current = cardRef;
                         }}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
+                        {...dragProvided.draggableProps}
+                        {...dragProvided.dragHandleProps}
                         onClick={() => openTodoCardModal({ card, column, isMember })}
                       >
-                        <Card key={`card-${card.id}`} card={card} comments={card.comments} />
+                        <Card key={`card-${card.id}`} card={card} comments={card.comments ?? []} />
                       </div>
                     )}
                   </Draggable>

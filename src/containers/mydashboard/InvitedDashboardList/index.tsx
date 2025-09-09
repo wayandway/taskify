@@ -45,7 +45,7 @@ export default function InvitedDashboardList({ initialInvitedDashboard }: Invite
         }
         setCursorId(nextData.cursorId ?? 0);
       } catch (err) {
-        console.error('데이터를 가져오는 중 오류가 발생했습니다:', err);
+        // console.error('데이터를 가져오는 중 오류가 발생했습니다:', err);
       } finally {
         setIsFetchingNextPage(false);
       }
@@ -103,7 +103,7 @@ export default function InvitedDashboardList({ initialInvitedDashboard }: Invite
       queryClient.invalidateQueries({ queryKey: ['dashboards'] });
       queryClient.invalidateQueries({ queryKey: ['sideDashboards'] });
     } catch (err) {
-      console.error('초대 업데이트 중 오류 발생:', err);
+      // console.error('초대 업데이트 중 오류 발생:', err);
     }
   };
 
@@ -116,7 +116,7 @@ export default function InvitedDashboardList({ initialInvitedDashboard }: Invite
         const { data: searchData } = await getInvitationsList(10, 0, searchValue);
         setInvitations(searchData.invitations);
       } catch (err) {
-        console.error('데이터를 가져오는 중 오류가 발생했습니다:', err);
+        // console.error('데이터를 가져오는 중 오류가 발생했습니다:', err);
       }
     }, 300),
     [],

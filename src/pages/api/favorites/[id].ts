@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
         res.status(200).json(favorites);
       } catch (error) {
-        console.error('즐겨찾기 항목 조회 실패:', error);
+        // console.error('즐겨찾기 항목 조회 실패:', error);
         res.status(500).json({ error: 'Failed to fetch favorites' });
       }
       break;
@@ -37,7 +37,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         const { id: favoriteId, title, color, createdAt, updatedAt, createdByMe, userId } = req.body;
 
-        if (!favoriteId || !title || !color || !createdAt || !updatedAt || createdByMe === undefined || !userId) {
+        if (
+          !favoriteId ||
+          !title ||
+          !color ||
+          !createdAt ||
+          !updatedAt ||
+          typeof createdByMe !== 'boolean' ||
+          !userId
+        ) {
           return res.status(400).json({ error: 'All fields are required' });
         }
 
@@ -62,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await newFavorite.save();
         res.status(201).json(newFavorite);
       } catch (error) {
-        console.error('즐겨찾기 항목 생성 실패:', error);
+        // console.error('즐겨찾기 항목 생성 실패:', error);
         res.status(400).json({ error: 'Failed to create favorite' });
       }
       break;
@@ -82,8 +90,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
         res.status(204).end();
       } catch (error) {
-        console.error('즐겨찾기 항목 삭제 실패:', error);
-        res.status(500).json({ error: 'Failed to delete favorite' });
+        // console.error('즐겨찾기 항목 삭제 실패:', error);
+        res.status(400).json({ error: 'Failed to delete favorite' });
       }
       break;
 

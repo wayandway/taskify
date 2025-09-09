@@ -34,7 +34,7 @@ export const useFavoriteUser = () => {
       dispatch(setFavoritesUser({ userId: data.userId, _id: data._id }));
       dispatch(isLoading(false));
     },
-    onError: (error) => {
+    onError: () => {
       dispatch(setError('Failed to fetch favorite user'));
       dispatch(isLoading(false));
     },
