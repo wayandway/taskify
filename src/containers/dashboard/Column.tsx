@@ -17,51 +17,11 @@ interface ColumnProps {
   columns: ColumnType[];
   index: number;
   isMember: boolean;
+  cards: CardType[];
 }
 
-function Column({ column, columns, isMember }: ColumnProps) {
+function Column({ column, columns, isMember, cards }: ColumnProps) {
   const { openModifyColumnModal, openEditCardModal, openTodoCardModal } = useModal();
-  const [cards, setCards] = useState<CardType[]>([]);
-  // const [cardsWithComments, setCardsWithComments] = useState<CardType[]>([]); // 미사용 변수 제거
-  const [cursorId, setCursorId] = useState<number | null>(null);
-  const [isFetching, setIsFetching] = useState(false);
-
-  const {
-    data: initialData,
-    isLoading,
-    error,
-  } = useFetchData<CardsListResponse>(['cards', column.id], () => getCardsList(column.id, 10));
-
-  useEffect(() => {
-    if (initialData) {
-      setCards(initialData.cards);
-      setCursorId(initialData.cursorId || null);
-    }
-
-    // 미사용 함수 및 변수 제거
-  }, [initialData]);
-  // 카드 추가 로딩 함수
-  const fetchMoreCards = async (size: number, nextCursorId?: number | null) => {
-    setIsFetching(true);
-    try {
-      const res = await getCardsList(column.id, size, typeof nextCursorId === 'number' ? nextCursorId : undefined);
-      const newCards = res.data.cards || [];
-      setCards((prev) => [...prev, ...newCards]);
-      setCursorId(res.data.cursorId || null);
-    } finally {
-      setIsFetching(false);
-    }
-  };
-
-  const { observerRef } = useInfiniteScroll(fetchMoreCards, cursorId, isFetching);
-
-  if (isLoading) {
-    return <ColumnSkeleton />;
-  }
-
-  if (error) {
-    return <>{error.message}</>;
-  }
 
   return (
     <div className='block h-full lg:flex'>
@@ -104,11 +64,7 @@ function Column({ column, columns, isMember }: ColumnProps) {
         <div className='scrollbar-hide lg:overflow-y-auto'>
           <Droppable droppableId={`column-${column.id}`} key={`column-${column.id}`} isDropDisabled={!isMember}>
             {(provided) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                style={{ minHeight: '100px' }} // 최소 높이
-              >
+              <div ref={provided.innerRef} {...provided.droppableProps} style={{ minHeight: '100px' }}>
                 {cards.map((card, index) => (
                   <Draggable
                     key={`card-${card.id}`}
@@ -118,10 +74,7 @@ function Column({ column, columns, isMember }: ColumnProps) {
                   >
                     {(dragProvided) => (
                       <div
-                        ref={(cardRef) => {
-                          dragProvided.innerRef(cardRef);
-                          if (index === cards.length - 1) observerRef.current = cardRef;
-                        }}
+                        ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
                         {...dragProvided.dragHandleProps}
                         onClick={() => openTodoCardModal({ card, column, isMember })}
@@ -131,12 +84,6 @@ function Column({ column, columns, isMember }: ColumnProps) {
                     )}
                   </Draggable>
                 ))}
-                {isFetching &&
-                  Array.from({ length: 1 }).map((_, index) => (
-                    <div key={index} className='align-center py-3 opacity-50 invert dark:invert-0'>
-                      <Image src='/icons/spinner.svg' alt='스피너 아이콘' width={20} height={20} />
-                    </div>
-                  ))}
                 {provided.placeholder}
               </div>
             )}

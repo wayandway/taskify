@@ -12,6 +12,7 @@ import instance from '@/services/axios';
 import { getColumnsList } from '@/services/getService';
 import { moveToOtherColumn } from '@/services/putService';
 import { RootState } from '@/store/store';
+import { Card as CardType } from '@/types/Card.interface';
 import { ColumnsResponse } from '@/types/Column.interface';
 
 interface ColumnsSectionProps {
@@ -27,8 +28,28 @@ export default function ColumnsSection({ dashboardId }: ColumnsSectionProps) {
   const { data: columns, isLoading } = useFetchData<ColumnsResponse>(['columns', dashboardId], () =>
     getColumnsList(Number(dashboardId)),
   );
-
   const columnList = columns?.data || [];
+
+  // 카드 상태를 컬럼별로 통합 관리
+  const [cardsByColumn, setCardsByColumn] = useState<Record<number, CardType[]>>({});
+
+  // 컬럼별 카드 fetch
+  useEffect(() => {
+    if (!columnList.length) return;
+    const fetchAllCards = async () => {
+      const result: Record<number, CardType[]> = {};
+      for (const col of columnList) {
+        try {
+          const res = await import('@/services/getService').then((m) => m.getCardsList(col.id, 100));
+          result[col.id] = res.data.cards || [];
+        } catch {
+          result[col.id] = [];
+        }
+      }
+      setCardsByColumn(result);
+    };
+    fetchAllCards();
+  }, [columns]);
 
   useEffect(() => {
     const handleCheckMember = async () => {
@@ -55,22 +76,41 @@ export default function ColumnsSection({ dashboardId }: ColumnsSectionProps) {
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
-
     if (!destination) return;
 
     const sourceColumnId = parseInt(source.droppableId.replace('column-', ''), 10);
     const destinationColumnId = parseInt(destination.droppableId.replace('column-', ''), 10);
-
     const cardId = parseInt(result.draggableId.replace('card-', ''), 10);
 
-    try {
-      await moveToOtherColumn(cardId, destinationColumnId);
-      queryClient.invalidateQueries({ queryKey: ['columns', dashboardId] });
-      queryClient.invalidateQueries({ queryKey: ['cards', sourceColumnId] });
-      queryClient.invalidateQueries({ queryKey: ['cards', destinationColumnId] });
-    } catch (e) {
-      // console.error(e);
-    }
+    // 같은 컬럼 내 순서 변경은 무시
+    if (sourceColumnId === destinationColumnId) return;
+
+    // optimistic update: UI에서 먼저 카드 이동
+    setCardsByColumn((prev) => {
+      const sourceCards = prev[sourceColumnId] ? [...prev[sourceColumnId]] : [];
+      const destCards = prev[destinationColumnId] ? [...prev[destinationColumnId]] : [];
+      const cardIdx = sourceCards.findIndex((c) => c.id === cardId);
+      if (cardIdx === -1) return prev;
+      const [movedCard] = sourceCards.splice(cardIdx, 1);
+      movedCard.columnId = destinationColumnId;
+      destCards.splice(destination.index, 0, movedCard);
+      return {
+        ...prev,
+        [sourceColumnId]: sourceCards,
+        [destinationColumnId]: destCards,
+      };
+    });
+
+    // 서버 동기화는 백그라운드에서 처리
+    moveToOtherColumn(cardId, destinationColumnId)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['columns', dashboardId] });
+        queryClient.invalidateQueries({ queryKey: ['cards', sourceColumnId] });
+        queryClient.invalidateQueries({ queryKey: ['cards', destinationColumnId] });
+      })
+      .catch(() => {
+        // TODO: 실패 시 롤백
+      });
   };
 
   return isLoading ? (
@@ -95,6 +135,7 @@ export default function ColumnsSection({ dashboardId }: ColumnsSectionProps) {
                     columns={columnList}
                     index={index}
                     isMember={isMember}
+                    cards={cardsByColumn[column.id] || []}
                   />
                   {provided.placeholder}
                 </li>
