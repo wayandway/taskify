@@ -74,18 +74,26 @@ export default function ColumnsSection({ dashboardId }: ColumnsSectionProps) {
     }
   };
 
-  const onDragEnd = async (result: DropResult) => {
+  const handleDragStart = () => {
+    const boardSection = document.getElementById('kanban-board-section');
+    if (boardSection) {
+      boardSection.style.overflowY = 'hidden';
+    }
+  };
+  const handleDragEnd = (result: DropResult) => {
+    const boardSection = document.getElementById('kanban-board-section');
+    if (boardSection) {
+      boardSection.style.overflowY = 'hidden';
+      setTimeout(() => {
+        boardSection.style.overflowY = '';
+      }, 200);
+    }
     const { source, destination } = result;
     if (!destination) return;
-
     const sourceColumnId = parseInt(source.droppableId.replace('column-', ''), 10);
     const destinationColumnId = parseInt(destination.droppableId.replace('column-', ''), 10);
     const cardId = parseInt(result.draggableId.replace('card-', ''), 10);
-
-    // 같은 컬럼 내 순서 변경은 무시
     if (sourceColumnId === destinationColumnId) return;
-
-    // optimistic update: UI에서 먼저 카드 이동
     setCardsByColumn((prev) => {
       const sourceCards = prev[sourceColumnId] ? [...prev[sourceColumnId]] : [];
       const destCards = prev[destinationColumnId] ? [...prev[destinationColumnId]] : [];
@@ -100,8 +108,6 @@ export default function ColumnsSection({ dashboardId }: ColumnsSectionProps) {
         [destinationColumnId]: destCards,
       };
     });
-
-    // 서버 동기화는 백그라운드에서 처리
     moveToOtherColumn(cardId, destinationColumnId)
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['columns', dashboardId] });
@@ -120,8 +126,9 @@ export default function ColumnsSection({ dashboardId }: ColumnsSectionProps) {
       </div>
     </div>
   ) : (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <section
+        id='kanban-board-section'
         className={`block h-full overflow-x-auto lg:flex lg:h-[calc(100dvh-70px)] ${!user ? 'lg:w-screen' : 'lg:w-[calc(100dvw-300px)]'}`}
       >
         <ul className='block lg:flex'>
